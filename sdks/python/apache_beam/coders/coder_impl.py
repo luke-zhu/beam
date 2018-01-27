@@ -28,7 +28,7 @@ For internal use only; no backwards-compatibility guarantees.
 """
 from __future__ import absolute_import
 
-from types import NoneType
+import six
 
 from apache_beam.coders import observable
 from apache_beam.utils import windowed_value
@@ -264,7 +264,7 @@ class FastPrimitivesCoderImpl(StreamCoderImpl):
 
   def encode_to_stream(self, value, stream, nested):
     t = type(value)
-    if t is NoneType:
+    if value is None:
       stream.write_byte(NONE_TYPE)
     elif t is int:
       stream.write_byte(INT_TYPE)
@@ -272,10 +272,10 @@ class FastPrimitivesCoderImpl(StreamCoderImpl):
     elif t is float:
       stream.write_byte(FLOAT_TYPE)
       stream.write_bigendian_double(value)
-    elif t is str:
+    elif t is bytes:
       stream.write_byte(STR_TYPE)
       stream.write(value, nested)
-    elif t is unicode:
+    elif t is six.text_type:
       unicode_value = value  # for typing
       stream.write_byte(UNICODE_TYPE)
       stream.write(unicode_value.encode('utf-8'), nested)

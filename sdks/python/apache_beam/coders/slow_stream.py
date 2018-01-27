@@ -21,6 +21,7 @@ For internal use only; no backwards-compatibility guarantees.
 """
 
 import struct
+import sys
 
 
 class OutputStream(object):
@@ -32,13 +33,16 @@ class OutputStream(object):
     self.data = []
 
   def write(self, b, nested=False):
-    assert isinstance(b, str)
+    assert isinstance(b, bytes)
     if nested:
       self.write_var_int64(len(b))
     self.data.append(b)
 
   def write_byte(self, val):
-    self.data.append(chr(val))
+    if sys.version_info[0] == 2:
+      self.data.append(chr(val))
+    else:
+      self.data.append(bytes([val]))
 
   def write_var_int64(self, v):
     if v < 0:
@@ -67,7 +71,7 @@ class OutputStream(object):
     self.write(struct.pack('>d', v))
 
   def get(self):
-    return ''.join(self.data)
+    return b''.join(self.data)
 
   def size(self):
     return len(self.data)
@@ -123,7 +127,9 @@ class InputStream(object):
 
   def read_byte(self):
     self.pos += 1
-    return ord(self.data[self.pos - 1])
+    if sys.version_info[0] == 2:
+      return ord(self.data[self.pos - 1])
+    return self.data[self.pos - 1]
 
   def read_var_int64(self):
     shift = 0

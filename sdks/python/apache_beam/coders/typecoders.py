@@ -66,6 +66,8 @@ See apache_beam.typehints.decorators module for more details.
 
 import warnings
 
+import six
+
 from apache_beam.coders import coders
 from apache_beam.typehints import typehints
 
@@ -86,7 +88,7 @@ class CoderRegistry(object):
     self._register_coder_internal(float, coders.FloatCoder)
     self._register_coder_internal(str, coders.BytesCoder)
     self._register_coder_internal(bytes, coders.BytesCoder)
-    self._register_coder_internal(unicode, coders.StrUtf8Coder)
+    self._register_coder_internal(six.text_type, coders.StrUtf8Coder)
     self._register_coder_internal(typehints.TupleConstraint, coders.TupleCoder)
     # Default fallback coders applied in that order until the first matching
     # coder found.
